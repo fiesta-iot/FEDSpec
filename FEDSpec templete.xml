@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fed:FEDSpec xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:fed="http://www.fiesta-iot.eu/fedspec"
+ xmlns:prt="http://www.w3.org/2007/SPARQL/protocol-types#"
+ xmlns:vbr="http://www.w3.org/2007/SPARQL/results#"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.fiesta-iot.eu/fedspec file:/C:/Ext_SSD/AIT/FIESTA/FIESTA-SVN/WP4/Task%204.1/Objects/XSD/FEDSpec.xsd" userID="#USERID#">
+    <fed:FEMO name="#FEMONAME#">
+        <fed:description>#FEMODESCRIPTION#</fed:description>
+        <fed:domainOfInterest>#DOMAINOFINTEREST#</fed:domainOfInterest>
+        <fed:FISMO name="#FISMONAME#">
+            <fed:description>#FISMODESCRIPTION#</fed:description>
+            <fed:discoverable>#DISCOVERABLE#</fed:discoverable>
+            <fed:experimentControl>
+                <fed:scheduling>
+                    <fed:startTime>#STARTTIME#</fed:startTime>
+                    <fed:Periodicity>#PERIODICITY#</fed:Periodicity>
+                    <fed:stopTime>#STOPTIME#</fed:stopTime>
+                </fed:scheduling>
+                <fed:reportIfEmpty>#REPORTIDEMPTY#</fed:reportIfEmpty>
+            </fed:experimentControl>
+            <fed:experimentOutput location="https://SERVER:PORT/ExperimentServer/store/">
+                <fed:file>
+                    <fed:type>#FILETYPE#</fed:type>
+                </fed:file>
+                <fed:widget widgetID="eu.fiestaiot.analytics.toolkit">
+                    <fed:presentationAttr name="requestBody" value="{&quot;Method&quot;: [&quot;#METHOD#&quot;],&quot;Parameters&quot;: [&quot;#PARAMETERS#&quot;]}"/>
+                </fed:widget>
+            </fed:experimentOutput>
+            <fed:queryControl>
+                <prt:query-request>
+                    <query><![CDATA[
+                        # [1 / 1] visualization type: 'Gauge' and sensors
+
+                        #SAMPLE QUERY#
+
+                        Prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> 
+                        Prefix iotlite: <http://purl.oclc.org/NET/UNIS/fiware/iot-lite#> 
+                        Prefix dul: <http://www.loa.istc.cnr.it/ontologies/DUL.owl#> 
+                        Prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+                        Prefix time: <http://www.w3.org/2006/time#>
+                        Prefix m3-lite: <http://purl.org/iot/vocab/m3-lite#>
+                        Prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+                        Prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                        select ?sensorID (max(?ti) as ?time) ?value ?latitude ?longitude 
+                        where { 
+                            ?o a ssn:Observation.
+                            ?o ssn:observedBy ?sensorID.   
+                            ?o ssn:observedProperty ?qkr.
+                            ?qkr rdf:type ?qk.
+                            Values ?qk {m3-lite:Sound m3-lite:SoundPressureLevelAmbient}
+                            ?o ssn:observationSamplingTime ?t. 
+                            ?o geo:location ?point. 
+                            ?point geo:lat ?latitude. 
+                            ?point geo:long ?longitude. 
+                            ?t time:inXSDDateTime ?ti. 
+                            ?o ssn:observationResult ?or. 
+                            ?or  ssn:hasValue ?v. 
+                            ?v dul:hasDataValue ?value. 
+                            
+                            FILTER(?value>="50"^^xsd:double)
+                            FILTER(?ti > "%%fromDateTime%%"^^xsd:dateTime && ?ti < "%%toDateTime%%"^^xsd:dateTime)
+                        } group by ?sensorID ?time ?value ?latitude ?longitude
+                    ]]></query>
+                </prt:query-request>
+                <fed:dynamicAttrs>
+                    <fed:predefinedDynamicAttr>
+                        <fed:dynamicQueryInterval>
+                            <fed:intervalNowToPast>600</fed:intervalNowToPast>
+                        </fed:dynamicQueryInterval>    
+                    </fed:predefinedDynamicAttr>
+                </fed:dynamicAttrs>
+		    </fed:queryControl>
+        </fed:FISMO>
+    </fed:FEMO>
+</fed:FEDSpec>
